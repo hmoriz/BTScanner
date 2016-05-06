@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -21,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -30,7 +32,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private final static String TAG = "MainActivity";
 
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         devListView = (ListView) findViewById(R.id.dev_list);
         assert devListView != null;
         devListView.setAdapter(devListAdapter);
+        devListView.setOnItemClickListener(this);
 
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         if (btAdapter == null) {
@@ -270,5 +273,24 @@ public class MainActivity extends AppCompatActivity {
             startScan1();
             break;
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Log.d(TAG, "onItemClick");
+        BluetoothDevice device = devList.get(position);
+        if(device == null)return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        String name = device.getName();
+        String addr = device.getAddress();
+        if(name!=null) {
+            builder.setTitle(device.getName());
+            builder.setItems(new String[]{"Name:"+name, "Addr:"+addr}, null);
+        }else{
+            builder.setTitle("Unknown device");
+            builder.setItems(new String[]{"Name:", "Addr:"+addr}, null);
+        }
+        builder.setPositiveButton("OK", null);
+        builder.show();
     }
 }
